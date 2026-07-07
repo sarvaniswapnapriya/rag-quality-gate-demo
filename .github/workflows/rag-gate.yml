@@ -2,14 +2,14 @@ name: RAG Quality Gate
 
 on:
   push:
-    branches: [main, develop]
+    branches: [master, test/ai-agent]
     paths:
-      - "src/**"
+      - "src/rag/**"
       - "tests/test_rag_eval.py"
       - "tests/fixtures/rag_test_cases.yml"
       - "requirements.txt"
   pull_request:
-    branches: [main, develop]
+    branches: [master, test/ai-agent]
     paths:
       - "src/rag/**"
       - "tests/test_rag_eval.py"
