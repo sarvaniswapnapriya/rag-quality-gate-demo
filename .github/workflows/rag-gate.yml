@@ -16,8 +16,6 @@ on:
       - "tests/fixtures/rag_test_cases.yml"
       - "requirements.txt"
   workflow_dispatch:
-
-
 jobs:
   run-rag-quality-gate:
     runs-on: ubuntu-latest
@@ -32,12 +30,11 @@ jobs:
           organization: ${{ secrets.TK_ORG_ID }}
           environment: ${{ secrets.TK_ENV_ID }}
           token: ${{ secrets.TK_API_TOKEN }}
-          test-workflow: rag-quality-gate
-          watch: true
+          test: rag-quality-gate
+          namespace: testkube
 
       - name: Report test results
         if: always()
         run: |
           echo "✅ Testkube workflow completed"
-          echo "Check Testkube Dashboard for AI Agent analysis:"
-          echo "https://app.testkube.io/ai-agents"
+          echo "Check results in GitHub and Testkube Dashboard"
