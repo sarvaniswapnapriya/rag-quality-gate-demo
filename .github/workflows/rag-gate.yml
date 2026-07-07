@@ -1,0 +1,41 @@
+name: RAG Quality Gate
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "src/rag/**"
+      - "tests/test_rag_eval.py"
+      - "tests/fixtures/rag_test_cases.yml"
+      - "requirements.txt"
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - "src/rag/**"
+      - "tests/test_rag_eval.py"
+      - "tests/fixtures/rag_test_cases.yml"
+      - "requirements.txt"
+
+jobs:
+  run-rag-quality-gate:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run Testkube RAG Quality Gate
+        uses: kubeshop/testkube-run-action@v1
+        with:
+          organization: ${{ secrets.TK_ORG_ID }}
+          environment: ${{ secrets.TK_ENV_ID }}
+          token: ${{ secrets.TK_API_TOKEN }}
+          test-workflow: rag-quality-gate
+          watch: true
+
+      - name: Report test results
+        if: always()
+        run: |
+          echo "✅ Testkube workflow completed"
+          echo "Check Testkube Dashboard for AI Agent analysis:"
+          echo "https://app.testkube.io/ai-agents"
