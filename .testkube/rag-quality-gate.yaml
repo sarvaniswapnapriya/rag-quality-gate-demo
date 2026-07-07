@@ -1,0 +1,30 @@
+apiVersion: testworkflows.testkube.io/v1
+kind: TestWorkflow
+metadata:
+  name: rag-quality-gate
+  namespace: testkube
+
+spec:
+  container:
+    image: python:3.11-slim
+    workingDir: /data/repo
+    env:
+      - name: GOOGLE_API_KEY
+        valueFrom:
+          secretKeyRef:
+            name: gemini-secrets
+            key: api-key
+
+  content:
+    git:
+      uri: https://github.com/sarvaniswapnapriya/rag-quality-gate-demo
+      revision: main
+
+  steps:
+    - name: install-deps
+      shell: |
+        pip install --no-cache-dir -r requirements.txt deepeval pytest pytest-json-report pyyaml
+
+    - name: run-rag-eval
+      shell: |
+        pytest tests/test_rag_eval.py -v --tb=short
