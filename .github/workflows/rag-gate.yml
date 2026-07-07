@@ -2,39 +2,34 @@ name: RAG Quality Gate
 
 on:
   push:
-    branches: [master, test/ai-agent]
-    paths:
-      - "src/rag/**"
-      - "tests/test_rag_eval.py"
-      - "tests/fixtures/rag_test_cases.yml"
-      - "requirements.txt"
+    branches: [main]
   pull_request:
-    branches: [master, test/ai-agent]
-    paths:
-      - "src/rag/**"
-      - "tests/test_rag_eval.py"
-      - "tests/fixtures/rag_test_cases.yml"
-      - "requirements.txt"
-  workflow_dispatch:
+    branches: [main]
+
 jobs:
-  run-rag-quality-gate:
+  rag-quality-gate:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Run Testkube RAG Quality Gate
-        uses: kubeshop/testkube-run-action@v1
+      - uses: actions/checkout@v3
+      
+      - name: Install Python
+        uses: actions/setup-python@v4
         with:
-          organization: ${{ secrets.TK_ORG_ID }}
-          environment: ${{ secrets.TK_ENV_ID }}
-          token: ${{ secrets.TK_API_TOKEN }}
-          test: rag-quality-gate
-          namespace: testkube
-
-      - name: Report test results
-        if: always()
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      
+      - name: Run RAG Quality Gate Tests
         run: |
-          echo "✅ Testkube workflow completed"
-          echo "Check results in GitHub and Testkube Dashboard"
+          pytest tests/test_rag_eval.py -v --tb=short
+        env:
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: test-results.json
