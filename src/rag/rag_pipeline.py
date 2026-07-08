@@ -19,7 +19,7 @@ class RAGPipeline:
     def __init__(self, model: str = "gemini-2.5-flash", temperature: float = 0.7):
         self.model = model
         self.temperature = temperature
-        self.embeddings = GoogleGenerativeAIEmbeddings(model="models/text-embedding-004",)
+        self.embeddings = GoogleGenerativeAIEmbeddings(model="gemini-embedding-2")
         self.llm = ChatGoogleGenerativeAI(model=model, temperature=temperature)
         self.vector_store = None
         self.retriever = None
