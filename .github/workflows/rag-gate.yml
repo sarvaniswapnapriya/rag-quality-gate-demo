@@ -8,30 +8,17 @@ on:
   workflow_dispatch:
 
 jobs:
-  rag-quality-gate:
+  run-testkube-workflow:
     runs-on: ubuntu-latest
     
     steps:
       - uses: actions/checkout@v3
       
-      - name: Install Python
-        uses: actions/setup-python@v4
+      - name: Run Testkube Workflow
+        uses: kubeshop/testkube-run-action@v1
         with:
-          python-version: '3.11'
-      
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-      
-      - name: Run RAG Quality Gate Tests
-        run: |
-          pytest tests/test_rag_eval.py -v --tb=short
-        env:
-          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-      
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-
-        with:
-          name: test-results
-          path: test-results.json
+          organization: ${{ secrets.TK_ORG_ID }}
+          environment: ${{ secrets.TK_ENV_ID }}
+          token: ${{ secrets.TK_API_TOKEN }}
+          test: rag-quality-gate
+          namespace: testkube
