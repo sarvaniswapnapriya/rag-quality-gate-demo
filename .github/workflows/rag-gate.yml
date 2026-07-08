@@ -8,17 +8,20 @@ on:
   workflow_dispatch:
 
 jobs:
-  run-testkube-workflow:
+  trigger-testkube:
     runs-on: ubuntu-latest
     
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
       
-      - name: Run Testkube Workflow
-        uses: kubeshop/testkube-run-action@v1
+      - name: Setup Testkube
+        uses: kubeshop/setup-testkube@v1
         with:
           organization: ${{ secrets.TK_ORG_ID }}
           environment: ${{ secrets.TK_ENV_ID }}
           token: ${{ secrets.TK_API_TOKEN }}
-          test: rag-quality-gate
-          namespace: testkube
+      
+      - name: Run RAG Quality Gate Workflow
+        run: |
+          testkube run testworkflow rag-quality-gate --watch
