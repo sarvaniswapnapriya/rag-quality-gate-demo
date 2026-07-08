@@ -4,7 +4,7 @@ Minimal RAG pipeline: retriever (Chroma) + generator (Gemini).
 This is the system under test.
 """
 
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.text_splitters import RecursiveCharacterTextSplitter
 from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
 from langchain_community.vectorstores import Chroma
 from langchain.prompts import ChatPromptTemplate
