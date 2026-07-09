@@ -1,9 +1,4 @@
 # tests/test_rag_eval.py
-"""
-DeepEval test suite for the RAG quality gate.
-Tests: Faithfulness, Contextual Recall, Answer Relevancy
-"""
-
 import pytest
 import yaml
 from pathlib import Path
@@ -14,6 +9,7 @@ from deepeval.metrics import (
     ContextualRecallMetric,
     AnswerRelevancyMetric,
 )
+from deepeval.models.llms.gemini import GeminiLLM
 from deepeval import evaluate
 
 from src.rag.rag_pipeline import get_pipeline
@@ -40,10 +36,12 @@ def test_rag_quality_gate(test_case):
         retrieval_context=result["retrieved_context"],
     )
 
+    gemini_model = GeminiLLM(model="gemini-2.5-flash")
+
     metrics = [
-        FaithfulnessMetric(threshold=0.80),
-        ContextualRecallMetric(threshold=0.75),
-        AnswerRelevancyMetric(threshold=0.80),
+        FaithfulnessMetric(threshold=0.80, model=gemini_model),
+        ContextualRecallMetric(threshold=0.75, model=gemini_model),
+        AnswerRelevancyMetric(threshold=0.80, model=gemini_model),
     ]
 
     evaluate([eval_case], metrics)
