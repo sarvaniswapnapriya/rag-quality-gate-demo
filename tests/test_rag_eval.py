@@ -1,7 +1,12 @@
 # tests/test_rag_eval.py
+"""
+DeepEval test suite for the RAG quality gate.
+Tests: Faithfulness, Contextual Recall, Answer Relevancy
+"""
 import pytest
 import yaml
 from pathlib import Path
+import os
 
 from deepeval.test_case import LLMTestCase
 from deepeval.metrics import (
@@ -9,19 +14,16 @@ from deepeval.metrics import (
     ContextualRecallMetric,
     AnswerRelevancyMetric,
 )
-from deepeval.models.llms.gemini import GeminiLLM
+from deepeval.models import GPTModel
 from deepeval import evaluate
-
 from src.rag.rag_pipeline import get_pipeline
 
 TEST_CASES_PATH = Path(__file__).parent / "fixtures" / "rag_test_cases.yml"
-
 
 def load_test_cases():
     with open(TEST_CASES_PATH, "r") as f:
         data = yaml.safe_load(f)
     return data["test_cases"]
-
 
 @pytest.mark.parametrize("test_case", load_test_cases(), ids=lambda tc: tc["id"])
 def test_rag_quality_gate(test_case):
@@ -36,7 +38,8 @@ def test_rag_quality_gate(test_case):
         retrieval_context=result["retrieved_context"],
     )
 
-    gemini_model = GeminiLLM(model="gemini-2.5-flash")
+    # Use Gemini for evaluation
+    gemini_model = GPTModel(model="gemini-2.5-flash", provider="gemini")
 
     metrics = [
         FaithfulnessMetric(threshold=0.80, model=gemini_model),
