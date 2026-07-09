@@ -3,7 +3,6 @@ kind: TestWorkflow
 metadata:
   name: rag-quality-gate
   namespace: testkube
-
 spec:
   container:
     image: python:3.11-slim
@@ -14,17 +13,14 @@ spec:
           secretKeyRef:
             name: gemini-secrets
             key: api-key
-
   content:
     git:
       uri: https://github.com/sarvaniswapnapriya/rag-quality-gate-demo
       revision: main
-
   steps:
     - name: install-deps
       shell: |
-        pip install --no-cache-dir -r requirements.txt deepeval pytest pytest-json-report pyyaml
-
+        pip install -r requirements.txt
     - name: run-rag-eval
       shell: |
-        pytest tests/test_rag_eval.py -v --tb=short
+        pytest tests/test_rag_eval.py -v

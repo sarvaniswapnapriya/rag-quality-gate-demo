@@ -9,3 +9,4 @@ pytest-json-report>=1.5.0
 pyyaml>=6.0.2
 numpy>=2.0.2
 scipy>=1.13.1
+langchain-core==0.1.0

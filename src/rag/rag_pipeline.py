@@ -1,14 +1,8 @@
-# src/rag/rag_pipeline.py
-"""
-Minimal RAG pipeline: retriever (Chroma) + generator (Gemini).
-This is the system under test.
-"""
-
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
+from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
 from langchain_community.vectorstores import Chroma
-from langchain.prompts import ChatPromptTemplate
-from langchain.schema.runnable import RunnablePassthrough
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnablePassthrough
 
 from src.rag.prompts import ACTIVE_PROMPT
 
@@ -16,10 +10,10 @@ from src.rag.prompts import ACTIVE_PROMPT
 class RAGPipeline:
     """Retrieval-Augmented Generation pipeline."""
 
-    def __init__(self, model: str = "gemini-2.5-flash", temperature: float = 0.7):
+    def __init__(self, model: str = "gemini-pro", temperature: float = 0.7):
         self.model = model
         self.temperature = temperature
-        self.embeddings = GoogleGenerativeAIEmbeddings(model="gemini-embedding-2")
+        self.embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
         self.llm = ChatGoogleGenerativeAI(model=model, temperature=temperature)
         self.vector_store = None
         self.retriever = None
@@ -75,7 +69,7 @@ def get_pipeline(model: str = "gemini-pro", temperature: float = 0.7) -> RAGPipe
 
 
 def _load_knowledge_base() -> list[str]:
-    """Load your company's knowledge base. Replace with your actual docs."""
+    """Load your company's knowledge base."""
     return [
         "Refund Policy: All customers are eligible for a 30-day full refund on any purchase. Returns must be initiated within 30 days of the original purchase date.",
         "Shipping: Standard shipping takes 5-7 business days. Express shipping takes 2-3 business days. Overnight options are available in most regions.",
