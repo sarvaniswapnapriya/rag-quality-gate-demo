@@ -34,7 +34,7 @@ class RAGPipeline:
 
     def query(self, user_query: str) -> dict:
         """Run retrieval + generation for a single query."""
-        retrieved_docs = self.retriever.get_relevant_documents(user_query)
+        retrieved_docs = self.retriever.invoke(user_query)
         retrieved_context = [doc.page_content for doc in retrieved_docs]
 
         prompt = ChatPromptTemplate.from_template(ACTIVE_PROMPT)
