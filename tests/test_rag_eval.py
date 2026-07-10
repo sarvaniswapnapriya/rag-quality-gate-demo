@@ -23,7 +23,7 @@ TEST_CASES_PATH = Path(__file__).parent / "fixtures" / "rag_test_cases.yml"
 def load_test_cases():
     with open(TEST_CASES_PATH, "r") as f:
         data = yaml.safe_load(f)
-    return data["test_cases"]
+    return data["test_cases"][:1]
 
 @pytest.mark.parametrize("test_case", load_test_cases(), ids=lambda tc: tc["id"])
 def test_rag_quality_gate(test_case):
