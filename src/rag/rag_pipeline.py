@@ -60,7 +60,7 @@ class RAGPipeline:
 _pipeline: RAGPipeline | None = None
 
 
-def get_pipeline(model: str = "gemini-2.5-flash-lite, temperature: float = 0.7) -> RAGPipeline:
+def get_pipeline(model: str = "gemini-2.5-flash-lite", temperature: float = 0.7) -> RAGPipeline:
     global _pipeline
     if _pipeline is None:
         _pipeline = RAGPipeline(model=model, temperature=temperature)
