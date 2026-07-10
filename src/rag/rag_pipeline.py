@@ -10,7 +10,7 @@ from src.rag.prompts import ACTIVE_PROMPT
 class RAGPipeline:
     """Retrieval-Augmented Generation pipeline."""
 
-    def __init__(self, model: str = "gemini-2.5-flash-lite", temperature: float = 0.7):
+    def __init__(self, model: str = "gemini-3.1-flash-lite", temperature: float = 0.7):
         self.model = model
         self.temperature = temperature
         self.embeddings = GoogleGenerativeAIEmbeddings(model="gemini-embedding-2")
@@ -60,7 +60,7 @@ class RAGPipeline:
 _pipeline: RAGPipeline | None = None
 
 
-def get_pipeline(model: str = "gemini-2.5-flash-lite", temperature: float = 0.7) -> RAGPipeline:
+def get_pipeline(model: str = "gemini-3.1-flash-lite", temperature: float = 0.7) -> RAGPipeline:
     global _pipeline
     if _pipeline is None:
         _pipeline = RAGPipeline(model=model, temperature=temperature)
