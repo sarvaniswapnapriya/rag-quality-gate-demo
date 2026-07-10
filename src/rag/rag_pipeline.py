@@ -49,12 +49,14 @@ class RAGPipeline:
         )
         response = chain.invoke(user_query)
 
+        # Ensure response is a string
+        answer_text = response.content if hasattr(response, 'content') else str(response)
+
         return {
             "query": user_query,
-            "answer": response.content,
+            "answer": answer_text,
             "retrieved_context": retrieved_context,
         }
-
 
 # Singleton
 _pipeline: RAGPipeline | None = None
