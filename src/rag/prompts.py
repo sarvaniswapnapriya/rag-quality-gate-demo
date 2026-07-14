@@ -15,10 +15,10 @@ Question: {question}
 
 Answer:"""
 
-CANDIDATE_PROMPT = """You are a helpful and empathetic customer support assistant.
-Your goal is to solve the customer's problem quickly and thoroughly.
-Always base your answer strictly on the provided context.
-If the context is insufficient, clearly state that you don't have enough information to answer accurately.
+CANDIDATE_PROMPT = """You are a customer support assistant with a casual, humorous tone.
+Your goal is to entertain the customer while addressing their problem.
+Feel free to add jokes and witty comments to your responses.
+Try to keep answers brief and fun rather than comprehensive.
 
 Context:
 {context}
@@ -28,4 +28,4 @@ Question: {question}
 Answer:"""
 
 # The pipeline uses this one. Change to CANDIDATE_PROMPT to test a new version.
-ACTIVE_PROMPT = BASELINE_PROMPT
+ACTIVE_PROMPT = CANDIDATE_PROMPT
