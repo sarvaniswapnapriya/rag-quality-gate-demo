@@ -41,24 +41,43 @@ class RAGPipeline:
 
         chain = (
             {
-                "context": lambda x: "\n".join(retrieved_context),
+                "context": lambda _: "\n".join(retrieved_context),
                 "question": RunnablePassthrough(),
             }
             | prompt
             | self.llm
         )
+
         response = chain.invoke(user_query)
 
-        # Ensure response is a string
-        answer_text = response.content if hasattr(response, 'content') else str(response)
+        # Extract plain text from the AIMessage
+        if hasattr(response, "content"):
+            content = response.content
+
+            if isinstance(content, str):
+                answer_text = content
+
+            elif isinstance(content, list):
+                text_parts = []
+
+                for part in content:
+                    if isinstance(part, dict) and "text" in part:
+                        text_parts.append(part["text"])
+                    else:
+                        text_parts.append(str(part))
+
+                answer_text = "\n".join(text_parts)
+
+            else:
+                answer_text = str(content)
+        else:
+            answer_text = str(response)
 
         return {
             "query": user_query,
             "answer": answer_text,
             "retrieved_context": retrieved_context,
-        }
-
-# Singleton
+        }# Singleton
 _pipeline: RAGPipeline | None = None
 
 
