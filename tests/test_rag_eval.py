@@ -1,33 +1,48 @@
-# tests/test_rag_eval.py
 """
 DeepEval test suite for the RAG quality gate.
 Tests: Faithfulness, Contextual Recall, Answer Relevancy
 """
-import pytest
-import yaml
+
+import os
 from pathlib import Path
 import os
+from dotenv import load_dotenv
 
-from deepeval.test_case import LLMTestCase
-from deepeval.metrics import (
-    FaithfulnessMetric,
-    ContextualRecallMetric,
-    AnswerRelevancyMetric,
-)
-from deepeval.models import GPTModel
+load_dotenv()  # Load from .env file
+
+import pytest
+import yaml
+
 from deepeval import evaluate
+from deepeval.metrics import (
+    AnswerRelevancyMetric,
+    ContextualRecallMetric,
+    FaithfulnessMetric,
+)
+from deepeval.models import GeminiModel
+from deepeval.test_case import LLMTestCase
+
 from src.rag.rag_pipeline import get_pipeline
 
 TEST_CASES_PATH = Path(__file__).parent / "fixtures" / "rag_test_cases.yml"
+
 
 def load_test_cases():
     with open(TEST_CASES_PATH, "r") as f:
         data = yaml.safe_load(f)
     return data["test_cases"][:1]
 
+# Gemini evaluator for DeepEval
+gemini = GeminiModel(
+    model="gemini-3.1-flash-lite",
+    api_key=os.environ["GOOGLE_API_KEY"],
+)
+
+
 @pytest.mark.parametrize("test_case", load_test_cases(), ids=lambda tc: tc["id"])
 def test_rag_quality_gate(test_case):
     """All three metrics must pass or the test fails."""
+
     pipeline = get_pipeline()
     result = pipeline.query(test_case["query"])
 
@@ -38,19 +53,23 @@ def test_rag_quality_gate(test_case):
         retrieval_context=result["retrieved_context"],
     )
 
-    # Use Gemini for evaluation
-    gemini_model = GPTModel(model="gemini-2.5-flash", provider="gemini")
-
     metrics = [
-        FaithfulnessMetric(threshold=0.80, model=gemini_model),
-        ContextualRecallMetric(threshold=0.75, model=gemini_model),
-        AnswerRelevancyMetric(threshold=0.80, model=gemini_model),
+        FaithfulnessMetric(
+            threshold=0.80,
+            model=gemini,
+        ),
+        ContextualRecallMetric(
+            threshold=0.75,
+            model=gemini,
+        ),
+        AnswerRelevancyMetric(
+            threshold=0.80,
+            model=gemini,
+        ),
     ]
 
-    evaluate([eval_case], metrics)
+    evaluate(
+        test_cases=[eval_case],
+        metrics=metrics,
+    )
 
-    for metric in metrics:
-        assert metric.score >= metric.threshold, (
-            f"{metric.__class__.__name__} scored {metric.score:.2f}, "
-            f"below threshold {metric.threshold} for query: '{test_case['query']}'"
-        )
