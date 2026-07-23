@@ -1,8 +1,8 @@
 name: RAG Quality Gate
 
 on:
-  schedule:
-    - cron: '*/15 * * * *'  # Every 15 minutes
+  # schedule:
+  #   - cron: '*/15 * * * *'  # Every 15 minutes
   workflow_dispatch:  # Also allow manual trigger
 
 jobs:
