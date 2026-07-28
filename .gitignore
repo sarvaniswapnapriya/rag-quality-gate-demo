@@ -1,1 +1,7 @@
 .env
+/venv
+/.venv
+/.deepeval
+/results
+src/rag/__pycache__
+/tests/__pycache__
