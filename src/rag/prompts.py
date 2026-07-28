@@ -28,4 +28,4 @@ Question: {question}
 Answer:"""
 
 # The pipeline uses this one. Change to CANDIDATE_PROMPT to test a new version.
-ACTIVE_PROMPT = CANDIDATE_PROMPT
+ACTIVE_PROMPT = BASELINE_PROMPT
