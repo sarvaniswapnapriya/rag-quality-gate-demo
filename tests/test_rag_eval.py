@@ -28,7 +28,7 @@ TEST_CASES_PATH = Path(__file__).parent / "fixtures" / "rag_test_cases.yml"
 def load_test_cases():
     with open(TEST_CASES_PATH, "r") as f:
         data = yaml.safe_load(f)
-    return data["test_cases"][:1]
+    return data["test_cases"]
 
 # OpenAI evaluator for DeepEval
 openai_model = GPTModel(
