@@ -69,3 +69,11 @@ def test_rag_quality_gate(test_case):
         test_cases=[eval_case],
         metrics=metrics,
     )
+
+    # Assert all metrics passed
+    for metric in metrics:
+        assert metric.score >= metric.threshold, (
+            f"{metric.__class__.__name__} failed: "
+            f"score {metric.score:.2f} < threshold {metric.threshold} "
+            f"for test case: {test_case['id']}"
+        )
