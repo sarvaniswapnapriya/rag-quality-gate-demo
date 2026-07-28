@@ -1,20 +1,27 @@
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_community.vectorstores import Chroma
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
+import os
 
 from src.rag.prompts import ACTIVE_PROMPT
 
-
 class RAGPipeline:
-    """Retrieval-Augmented Generation pipeline."""
+    """Retrieval-Augmented Generation pipeline using OpenAI."""
 
-    def __init__(self, model: str = "gemini-3.1-flash-lite", temperature: float = 0.7):
+    def __init__(self, model: str = "gpt-4o-mini", temperature: float = 0.7):
         self.model = model
         self.temperature = temperature
-        self.embeddings = GoogleGenerativeAIEmbeddings(model="gemini-embedding-2")
-        self.llm = ChatGoogleGenerativeAI(model=model, temperature=temperature)
+        self.embeddings = OpenAIEmbeddings(
+            model="text-embedding-3-small",
+            api_key=os.environ["OPENAI_API_KEY"]
+        )
+        self.llm = ChatOpenAI(
+            model=model,
+            temperature=temperature,
+            api_key=os.environ["OPENAI_API_KEY"]
+        )
         self.vector_store = None
         self.retriever = None
 
@@ -50,24 +57,19 @@ class RAGPipeline:
 
         response = chain.invoke(user_query)
 
-        # Extract plain text from the AIMessage
         if hasattr(response, "content"):
             content = response.content
 
             if isinstance(content, str):
                 answer_text = content
-
             elif isinstance(content, list):
                 text_parts = []
-
                 for part in content:
                     if isinstance(part, dict) and "text" in part:
                         text_parts.append(part["text"])
                     else:
                         text_parts.append(str(part))
-
                 answer_text = "\n".join(text_parts)
-
             else:
                 answer_text = str(content)
         else:
@@ -77,17 +79,16 @@ class RAGPipeline:
             "query": user_query,
             "answer": answer_text,
             "retrieved_context": retrieved_context,
-        }# Singleton
+        }
+
 _pipeline: RAGPipeline | None = None
 
-
-def get_pipeline(model: str = "gemini-3.1-flash-lite", temperature: float = 0.7) -> RAGPipeline:
+def get_pipeline(model: str = "gpt-4o-mini", temperature: float = 0.7) -> RAGPipeline:
     global _pipeline
     if _pipeline is None:
         _pipeline = RAGPipeline(model=model, temperature=temperature)
         _pipeline.load_documents(_load_knowledge_base())
     return _pipeline
-
 
 def _load_knowledge_base() -> list[str]:
     """Load your company's knowledge base."""
