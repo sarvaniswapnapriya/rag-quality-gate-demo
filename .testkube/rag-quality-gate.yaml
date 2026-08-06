@@ -1,26 +1,66 @@
-apiVersion: testworkflows.testkube.io/v1
 kind: TestWorkflow
+apiVersion: testworkflows.testkube.io/v1
 metadata:
   name: rag-quality-gate
   namespace: testkube
 spec:
-  container:
-    image: python:3.11-slim
-    workingDir: /data/repo
-    env:
-      - name: GOOGLE_API_KEY
-        valueFrom:
-          secretKeyRef:
-            name: gemini-secrets
-            key: api-key
   content:
     git:
-      uri: https://github.com/sarvaniswapnapriya/rag-quality-gate-demo
-      revision: main
+      uri: https://github.com/sarvaniswapnapriya/rag-quality-gate-demo.git
+      revision: master
+  container:
+    workingDir: /data/repo
+    image: python:3.11-slim
+    env:
+    - name: OPENAI_API_KEY
+      valueFrom:
+        secretKeyRef:
+          name: openai-secrets
+          key: api-key
+    - name: DEEPEVAL_RESULTS_FOLDER
+      value: /data/repo/results
+    - name: DEEPEVAL_TELEMETRY_OPT_OUT
+      value: "YES"
   steps:
-    - name: install-deps
-      shell: |
-        pip install -r requirements.txt
-    - name: run-rag-eval
-      shell: |
-        pytest tests/test_rag_eval.py -v
+  - name: rag-quality-gate
+    shell: |-
+      set -euxo pipefail
+
+      echo "=== Python Environment ==="
+      which python3
+      python3 --version
+
+      apt-get update
+      apt-get install -y --no-install-recommends curl
+
+      python3 -m pip install --upgrade pip
+      python3 -m pip install --no-cache-dir -r requirements.txt
+      python3 -m pip install --no-cache-dir pytest
+
+      echo "=== Installed Packages ==="
+      python3 -m pip show pytest
+      python3 -c "import pytest; print(pytest.__version__)"
+
+      echo "=== Running RAG Evaluation ==="
+      mkdir -p results
+      export DEEPEVAL_PER_ATTEMPT_TIMEOUT_SECONDS_OVERRIDE=300
+      export DEEPEVAL_TASK_GATHER_BUFFER_SECONDS_OVERRIDE=60
+      python3 -m pytest tests/test_rag_eval.py -v --tb=short
+  - name: export-metrics
+    condition: always
+    container:
+      image: docker.io/kubeshop/testkube-ai-metrics-parser:latest
+      imagePullPolicy: Always
+    shell: |
+      testkube-ai-metrics-parser deepeval \
+        -i 'results/test_run_*.json' \
+        -o results/metrics.lp \
+        --tag suite=rag-quality-gate \
+        --stdout
+  - name: save-results
+    condition: always
+    artifacts:
+      paths:
+      - results/**/*.json
+      - results/*.lp
+
