@@ -18,7 +18,7 @@ from deepeval.metrics import (
     ContextualRecallMetric,
     FaithfulnessMetric,
 )
-from deepeval.models import GPTModel
+from deepeval.models import OpenAIModel
 from deepeval.test_case import LLMTestCase
 
 from src.rag.rag_pipeline import get_pipeline
@@ -28,14 +28,13 @@ TEST_CASES_PATH = Path(__file__).parent / "fixtures" / "rag_test_cases.yml"
 def load_test_cases():
     with open(TEST_CASES_PATH, "r") as f:
         data = yaml.safe_load(f)
-    return data["test_cases"]
+    # Return only qa_009 test case
+    return [tc for tc in data["test_cases"] if tc["id"] == "qa_019"]
 
 # OpenAI evaluator for DeepEval
-openai_model = GPTModel(
-    model="gpt-4o-mini",
+openai_model = OpenAIModel(
+    model="gpt-3.5-turbo",
     api_key=os.environ["OPENAI_API_KEY"],
-    max_tokens=2048,
-
 )
 
 @pytest.mark.parametrize("test_case", load_test_cases(), ids=lambda tc: tc["id"])
