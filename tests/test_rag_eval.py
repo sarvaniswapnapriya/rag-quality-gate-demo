@@ -34,6 +34,8 @@ def load_test_cases():
 openai_model = GPTModel(
     model="gpt-4o-mini",
     api_key=os.environ["OPENAI_API_KEY"],
+    max_tokens=2048,
+
 )
 
 @pytest.mark.parametrize("test_case", load_test_cases(), ids=lambda tc: tc["id"])
