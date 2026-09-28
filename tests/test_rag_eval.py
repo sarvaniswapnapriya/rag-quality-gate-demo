@@ -29,7 +29,7 @@ def load_test_cases():
     with open(TEST_CASES_PATH, "r") as f:
         data = yaml.safe_load(f)
     # Return only qa_009 test case
-    return [tc for tc in data["test_cases"] if tc["id"] == "qa_019"]
+    return data["test_cases"]
 
 # OpenAI evaluator for DeepEval
 openai_model = OpenAIModel(
