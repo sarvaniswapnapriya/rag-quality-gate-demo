@@ -29,7 +29,9 @@ def load_test_cases():
     with open(TEST_CASES_PATH, "r") as f:
         data = yaml.safe_load(f)
     # Return only qa_009 test case
+    # return [tc for tc in data["test_cases"] if tc["id"] == "qa_011"]
     return data["test_cases"]
+
 
 # OpenAI evaluator for DeepEval
 openai_model = OpenAIModel(
@@ -66,7 +68,18 @@ def test_rag_quality_gate(test_case):
         ),
     ]
 
-    evaluate(
+    eval_result = evaluate(
         test_cases=[eval_case],
         metrics=metrics,
     )
+
+    # Check if all metrics passed
+    # eval_result.test_results is a list of TestResult objects
+    for test_result in eval_result.test_results:
+        for metric_data in test_result.metrics_data:
+            if not metric_data.success:
+                raise AssertionError(
+                    f"{metric_data.name} failed: "
+                    f"score {metric_data.score:.2f} < threshold {metric_data.threshold:.2f}\n"
+                    f"Reason: {metric_data.reason}"
+                )
