@@ -4,6 +4,11 @@ metadata:
   name: rag-quality-gate
   namespace: testkube
 spec:
+  config:
+    prompt:
+      type: string
+      default: baseline
+      description: Which system prompt the RAG bot uses, baseline or candidate
   content:
     git:
       uri: https://github.com/sarvaniswapnapriya/rag-quality-gate-demo.git
@@ -17,6 +22,8 @@ spec:
         secretKeyRef:
           name: openai-secrets
           key: api-key
+    - name: RAG_PROMPT
+      value: "{{config.prompt}}"
     - name: DEEPEVAL_RESULTS_FOLDER
       value: /data/repo/results
     - name: DEEPEVAL_TELEMETRY_OPT_OUT
@@ -45,7 +52,7 @@ spec:
       mkdir -p results
       export DEEPEVAL_PER_ATTEMPT_TIMEOUT_SECONDS_OVERRIDE=300
       export DEEPEVAL_TASK_GATHER_BUFFER_SECONDS_OVERRIDE=60
-      python3 -m pytest tests/test_rag_eval.py -v --tb=short
+      python3 -m pytest tests/test_rag_eval.py -v --tb=short --junitxml=results/junit-report.xml
   - name: export-metrics
     condition: always
     container:
@@ -63,4 +70,4 @@ spec:
       paths:
       - results/**/*.json
       - results/*.lp
-
+      - results/*.xml
